@@ -16,7 +16,8 @@ struct ContentView: View {
         if !userAuth.isLoggedin {
             return AnyView(Login())
         } else {
-            return AnyView(Home())
+            //6 berikan animasi
+            return AnyView(Home().animation(.easeIn))
         }
     }
 }
@@ -24,20 +25,14 @@ struct ContentView: View {
 struct Login : View {
     @EnvironmentObject var userAuth: AuthUser
     
-    @State private var showModal = false
     @State var username: String = ""
     @State var password: String = ""
     
-    let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
+    //7 buat validasi is Empty field
+    @State var isEmptyField = false
     
-    func cekLogin(){
-        if(username == "Admin" && password == "123" ){
-            userAuth.isLoggedin = true
-        }else {
-            userAuth.isLoggedin = false
-            userAuth.isCorrect = false
-        }
-    }
+    let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
+
     
     var body: some View {
         //Background View
@@ -76,6 +71,8 @@ struct Login : View {
                         .padding()
                         .background(lightGreyColor)
                         .cornerRadius(5.0)
+                        .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
                     
                     //Password
                     Text("Password")
@@ -83,10 +80,16 @@ struct Login : View {
                         .padding()
                         .background(lightGreyColor)
                         .cornerRadius(5.0)
+                    .autocapitalization(.none)
                     
-                    //Peringatan jika salah login
-                    if(!userAuth.isCorrect){
-                        Text("Username dan Password Salah!").foregroundColor(.red)
+                    //8 Peringatan jika salah login
+                    if(self.isEmptyField){
+                        Text("Username dan Password Tidak Boleh Kosong!").foregroundColor(.red)
+                    }
+                    
+                    //9 Pesan kesalahan jika tidak cocok
+                    if(!self.userAuth.isCorrect){
+                        Text("Username dan Password Tidak Cocok!").foregroundColor(.red)
                     }
                     
                     //Forgot Password
@@ -101,7 +104,15 @@ struct Login : View {
                     //Sign In Button
                     HStack{
                         Spacer()
-                        Button(action: {self.cekLogin()}){
+                        Button(action: {
+                            //10 Event cek login
+                            if(self.username.isEmpty || self.password.isEmpty){
+                                print("Tidak boleh kosong!")
+                                self.isEmptyField = true
+                            }else {
+                                self.userAuth.cekLogin(password: self.password, email: self.username)
+                            }
+                        }){
                             Text("Sign In").bold().font(.callout).foregroundColor(.white)
                         }
                         
