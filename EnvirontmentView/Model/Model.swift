@@ -9,15 +9,14 @@
 import Foundation
 import SwiftUI
 
-//4 Membuat model User Login
+//4 buat model
 struct UserLogin : Codable, Identifiable {
     let id = UUID()
-    let success : Bool
-    let token : String
+    let success: Bool
+    let token: String
     let expires: Int
     let currUser: Int
     let user: String
     let role: Int
     let isVerified: Int
 }
-

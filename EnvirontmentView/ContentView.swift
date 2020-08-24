@@ -16,7 +16,6 @@ struct ContentView: View {
         if !userAuth.isLoggedin {
             return AnyView(Login())
         } else {
-            //6 berikan animasi
             return AnyView(Home().animation(.easeIn))
         }
     }
@@ -25,15 +24,15 @@ struct ContentView: View {
 struct Login : View {
     @EnvironmentObject var userAuth: AuthUser
     
+    @State private var showModal = false
     @State var username: String = ""
     @State var password: String = ""
     
-    //7 buat validasi is Empty field
-    @State var isEmptyField = false
-    
     let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
-
     
+    //7 buat validasi jika field tidak diisi
+    @State var isEmptyField = false
+
     var body: some View {
         //Background View
         ZStack{
@@ -72,7 +71,7 @@ struct Login : View {
                         .background(lightGreyColor)
                         .cornerRadius(5.0)
                         .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
+                        .autocapitalization(.none)
                     
                     //Password
                     Text("Password")
@@ -80,16 +79,16 @@ struct Login : View {
                         .padding()
                         .background(lightGreyColor)
                         .cornerRadius(5.0)
-                    .autocapitalization(.none)
+                        .autocapitalization(.none)
                     
                     //8 Peringatan jika salah login
-                    if(self.isEmptyField){
-                        Text("Username dan Password Tidak Boleh Kosong!").foregroundColor(.red)
+                    if(!self.userAuth.isCorrect){
+                        Text("Username dan Password Salah!").foregroundColor(.red)
                     }
                     
-                    //9 Pesan kesalahan jika tidak cocok
-                    if(!self.userAuth.isCorrect){
-                        Text("Username dan Password Tidak Cocok!").foregroundColor(.red)
+                    //9 peringatan jika field kosong
+                    if(self.isEmptyField){
+                        Text("Username dan Password Tidak Boleh Kosong!").foregroundColor(.red)
                     }
                     
                     //Forgot Password
@@ -107,7 +106,6 @@ struct Login : View {
                         Button(action: {
                             //10 Event cek login
                             if(self.username.isEmpty || self.password.isEmpty){
-                                print("Tidak boleh kosong!")
                                 self.isEmptyField = true
                             }else {
                                 self.userAuth.cekLogin(password: self.password, email: self.username)
@@ -115,7 +113,6 @@ struct Login : View {
                         }){
                             Text("Sign In").bold().font(.callout).foregroundColor(.white)
                         }
-                        
                         Spacer()
                     }
                     .padding()
@@ -157,7 +154,10 @@ struct Home : View {
         NavigationView{
             ZStack{
                 Color.purple
-                Text("Home").foregroundColor(.white)
+                VStack(alignment: .center){
+                    Text("Selamat datang, \(userAuth.userName)").font(.title).foregroundColor(.white)
+                }
+                
                 
                     .navigationBarTitle("Home", displayMode: .inline)
                 .navigationBarItems(trailing:
@@ -165,12 +165,9 @@ struct Home : View {
                     Button(action: {self.userAuth.isLoggedin = false}){
                             Image(systemName: "arrowshape.turn.up.right.circle")
                     }
-                
                 )
-                
             }
         }
-        
     }
 }
 

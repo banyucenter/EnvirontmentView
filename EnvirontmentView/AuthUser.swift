@@ -12,25 +12,26 @@ import SwiftUI
 
 class AuthUser: ObservableObject {
     
-    @Published var isCorrect : Bool = true
-    
-    //1 membuat didChane
+    //1 membuat didchange
     var didChange = PassthroughSubject<AuthUser, Never>()
     
-    //2 rubah isLoggin
+    @Published var isCorrect : Bool = true
+    @Published var userName : String = ""
+    
+    //2 rubah state
     @Published var isLoggedin : Bool = false {
         didSet {
             didChange.send(self)
         }
     }
     
-    //3 buat fungsi cek login
-    func cekLogin(password: String, email: String) {
+    //3 fungsi cek login
+    func cekLogin(password: String, email: String){
         guard let url = URL(string: "http://localhost:3001/auth/api/v1/login") else {
             return
         }
         
-        let body : [String : String] = ["password": password,"email": email]
+        let body : [String : String] = ["password": password, "email": email]
         
         guard let finalBody = try? JSONEncoder().encode(body) else {
             return
@@ -43,16 +44,17 @@ class AuthUser: ObservableObject {
         request.httpBody = finalBody
         
         URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard let data = data, error == nil else { return }
+            guard let data = data, error == nil else {return}
             
-            //5 Tampilkan data response JSON
+            //5 decode data
             let result = try? JSONDecoder().decode(UserLogin.self, from: data)
             
             if let result = result {
                 DispatchQueue.main.async {
-                    print(result.success)
                     if(result.success){
                         self.isLoggedin = true
+                        //tampilkan data username
+                        self.userName = result.user
                     }
                 }
             }else {
@@ -60,7 +62,8 @@ class AuthUser: ObservableObject {
                     self.isCorrect = false
                 }
             }
+            
         }.resume()
     }
+      
 }
-
