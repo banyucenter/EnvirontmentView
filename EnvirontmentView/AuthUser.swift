@@ -9,25 +9,38 @@
 import Foundation
 import Combine
 import SwiftUI
+import SystemConfiguration
 
 class AuthUser: ObservableObject {
     
-    //1 membuat didchange
+    // membuat didchange
     var didChange = PassthroughSubject<AuthUser, Never>()
     
     @Published var isCorrect : Bool = true
     @Published var userName : String = ""
+    @Published var isConnected : Bool = true
     
-    //2 rubah state
+    //1 state published api reachable
+    @Published var isApiReachable: Bool = true {
+        didSet {
+            didChange.send(self)
+        }
+    }
+    
+    // rubah state
     @Published var isLoggedin : Bool = false {
         didSet {
             didChange.send(self)
         }
     }
     
-    //3 fungsi cek login
+    // fungsi cek login
     func cekLogin(password: String, email: String){
-        guard let url = URL(string: "http://localhost:3001/auth/api/v1/login") else {
+        // 2 set url
+        let apiaddress = "http://localhost:3001/auth/api/v1/login"
+        
+        //3 pasang url
+        guard let url = URL(string: apiaddress) else {
             return
         }
         
@@ -44,26 +57,40 @@ class AuthUser: ObservableObject {
         request.httpBody = finalBody
         
         URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard let data = data, error == nil else {return}
             
-            //5 decode data
+            //4 set isApiReachable
+            guard let data = data, error == nil else {
+                print("No data in response: \(error?.localizedDescription ?? "Unknown error").")
+                DispatchQueue.main.async {
+                    self.isApiReachable = false
+                }
+                return
+                
+            }
+            
+            // decode data
             let result = try? JSONDecoder().decode(UserLogin.self, from: data)
             
             if let result = result {
                 DispatchQueue.main.async {
                     if(result.success){
                         self.isLoggedin = true
-                        //tampilkan data username
+                        //ubah status isCorrect
+                        self.isCorrect = true
                         self.userName = result.user
+                    //6 is Correct
+                    }else {
+                        self.isCorrect = false
                     }
                 }
-            }else {
+                //7 set Invalid
+            } else {
                 DispatchQueue.main.async {
-                    self.isCorrect = false
+                    print("Invalid response from server")
                 }
             }
             
         }.resume()
     }
-      
+    
 }

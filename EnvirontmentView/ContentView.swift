@@ -17,6 +17,7 @@ struct ContentView: View {
             return AnyView(Login())
         } else {
             return AnyView(Home().animation(.easeIn))
+            
         }
     }
 }
@@ -32,13 +33,15 @@ struct Login : View {
     
     //7 buat validasi jika field tidak diisi
     @State var isEmptyField = false
-
+    
     var body: some View {
         //Background View
         ZStack{
             Color.white
                 .edgesIgnoringSafeArea(.all)
+            
             VStack{
+                
                 //1. Purple Welcome
                 HStack{
                     HStack{
@@ -61,6 +64,21 @@ struct Login : View {
                 .clipShape(CustomShape(corner: .bottomRight, radii: 50))
                 .edgesIgnoringSafeArea(.top)
                 
+                //8 jika domain tidak dapat terhubung
+                if !self.userAuth.isApiReachable {
+                    HStack{
+                        Spacer()
+                        HStack{
+                            Image(systemName: "exclamationmark.icloud").foregroundColor(Color.white)
+                            Text("Situs tidak dapat dijangkau!").font(.body).foregroundColor(Color.white)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(20)
+                        }
+                    .padding()
+                }
                 
                 //Form Field
                 VStack(alignment:.leading){
@@ -81,6 +99,8 @@ struct Login : View {
                         .cornerRadius(5.0)
                         .autocapitalization(.none)
                     
+                    
+                    
                     //8 Peringatan jika salah login
                     if(!self.userAuth.isCorrect){
                         Text("Username dan Password Salah!").foregroundColor(.red)
@@ -90,6 +110,7 @@ struct Login : View {
                     if(self.isEmptyField){
                         Text("Username dan Password Tidak Boleh Kosong!").foregroundColor(.red)
                     }
+                    
                     
                     //Forgot Password
                     HStack{
@@ -142,6 +163,8 @@ struct Login : View {
                 
                 Spacer()
             }
+            
+            
         }
     }
 }
@@ -154,18 +177,24 @@ struct Home : View {
         NavigationView{
             ZStack{
                 Color.purple
-                VStack(alignment: .center){
-                    Text("Selamat datang, \(userAuth.userName)").font(.title).foregroundColor(.white)
-                }
                 
-                
-                    .navigationBarTitle("Home", displayMode: .inline)
-                .navigationBarItems(trailing:
+                Text("Selamat Datang, \(userAuth.userName)").foregroundColor(.white)
                     
-                    Button(action: {self.userAuth.isLoggedin = false}){
+                    .navigationBarTitle("Home", displayMode: .inline)
+                    .navigationBarItems(trailing:
+                        
+                        Button(action: {
+                            self.userAuth.isLoggedin = false
+                            //logout set reachable true
+                            self.userAuth.isApiReachable = true
+                        }){
                             Image(systemName: "arrowshape.turn.up.right.circle")
-                    }
+                        }
                 )
+                
+                if(!self.userAuth.isConnected) {
+                    Text("No Internet Connection").background(Color.red).foregroundColor(Color.white)
+                }
             }
         }
     }
