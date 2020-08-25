@@ -64,22 +64,21 @@ struct Login : View {
                 .clipShape(CustomShape(corner: .bottomRight, radii: 50))
                 .edgesIgnoringSafeArea(.top)
                 
-                //8 jika domain tidak dapat terhubung
+                //jika domain tidak dapat terhubung
                 if !self.userAuth.isApiReachable {
                     HStack{
-                        Spacer()
                         HStack{
+                            Spacer()
                             Image(systemName: "exclamationmark.icloud").foregroundColor(Color.white)
                             Text("Situs tidak dapat dijangkau!").font(.body).foregroundColor(Color.white)
                             Spacer()
                         }
-                        .padding()
-                        .background(Color.red)
-                        .cornerRadius(20)
-                        }
                     .padding()
+                        .background(Color.red)
+                    .cornerRadius(20)
+                    }.padding()
                 }
-                
+
                 //Form Field
                 VStack(alignment:.leading){
                     //Username
@@ -98,7 +97,6 @@ struct Login : View {
                         .background(lightGreyColor)
                         .cornerRadius(5.0)
                         .autocapitalization(.none)
-                    
                     
                     
                     //8 Peringatan jika salah login
@@ -185,8 +183,8 @@ struct Home : View {
                         
                         Button(action: {
                             self.userAuth.isLoggedin = false
-                            //logout set reachable true
                             self.userAuth.isApiReachable = true
+                            
                         }){
                             Image(systemName: "arrowshape.turn.up.right.circle")
                         }

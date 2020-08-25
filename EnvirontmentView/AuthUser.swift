@@ -19,9 +19,8 @@ class AuthUser: ObservableObject {
     @Published var isCorrect : Bool = true
     @Published var userName : String = ""
     @Published var isConnected : Bool = true
-    
-    //1 state published api reachable
-    @Published var isApiReachable: Bool = true {
+    // buat var state
+    @Published var isApiReachable : Bool = true {
         didSet {
             didChange.send(self)
         }
@@ -36,11 +35,9 @@ class AuthUser: ObservableObject {
     
     // fungsi cek login
     func cekLogin(password: String, email: String){
-        // 2 set url
-        let apiaddress = "http://localhost:3001/auth/api/v1/login"
-        
+
         //3 pasang url
-        guard let url = URL(string: apiaddress) else {
+        guard let url = URL(string: "http://localhost:3001/auth/api/v1/login") else {
             return
         }
         
@@ -60,7 +57,8 @@ class AuthUser: ObservableObject {
             
             //4 set isApiReachable
             guard let data = data, error == nil else {
-                print("No data in response: \(error?.localizedDescription ?? "Unknown error").")
+                print("No data response")
+                
                 DispatchQueue.main.async {
                     self.isApiReachable = false
                 }
@@ -78,15 +76,15 @@ class AuthUser: ObservableObject {
                         //ubah status isCorrect
                         self.isCorrect = true
                         self.userName = result.user
-                    //6 is Correct
                     }else {
                         self.isCorrect = false
                     }
                 }
-                //7 set Invalid
+                
             } else {
                 DispatchQueue.main.async {
-                    print("Invalid response from server")
+                    self.isCorrect = false
+                    print("Invalid response from web services!")
                 }
             }
             
